@@ -24,21 +24,8 @@ res.send({Title:"HomePage"})
 app.get('/add-note', async (req, res) => {
     try {
         await Book.insertMany([
-
+            
             {
-                title:"hello",
-                body:"hello ki body",
-                image:"image hello ki",
-                auther:"auther kon hai",
-                pages:"pages kitne hai"
-            },
-            {
-                title:"dusra",
-                body:"hello ki body",
-                image:"image hello ki",
-                auther:"auther kon hai",
-                pages:"pages kitne hai"
-            },  {
                 title:"tisara",
                 body:"hello ki body",
                 image:"image hello ki",
