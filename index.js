@@ -18,7 +18,6 @@ const connectDB =async ()=>{
     }
 }
 
-// Enable CORS for all routes
 app.use(cors());
 
 app.get('/', (req, res)=>{
@@ -44,7 +43,16 @@ if (book){
 }else{
     res.send("Something went Wrong")
 }
+})
+app.get('/books/:id' ,async (req,res) => {
+    const bookId = req.params.id;
+    const book = await Book.findById(bookId);
 
+    if (book){
+        res.json(book)
+    }else{
+        res.status(404).send("Book not found")
+    }
 })
 
 connectDB().then(() => {
