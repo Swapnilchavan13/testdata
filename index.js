@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require("express")
 const mongoose = require("mongoose")
+const cors = require("cors")
 const Book = require('./models/books')
 
 const app=express();
@@ -17,6 +18,9 @@ const connectDB =async ()=>{
     }
 }
 
+// Enable CORS for all routes
+app.use(cors());
+
 app.get('/', (req, res)=>{
 res.send({Title:"HomePage"})
 })
@@ -25,23 +29,8 @@ app.get('/add-note', async (req, res) => {
     try {
         await Book.insertMany([
             
-            {
-                title:"tisara",
-                body:"hello ki body",
-                image:"image hello ki",
-                auther:"auther kon hai",
-                pages:"pages kitne hai"
-            } , {
-                title:"fourth",
-                body:"hello ki body",
-                image:"image hello ki",
-                auther:"auther kon hai",
-                pages:"pages kitne hai"
-            }
-
-
         ])
-
+        
     } catch (error) {
         console.log("err", + error)
     }
