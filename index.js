@@ -44,8 +44,8 @@ if (book){
     res.send("Something went Wrong")
 }
 })
-app.get('/books/:id' ,async (req,res) => {
-    const bookId = req.params.id;
+app.get('/books/:_id' ,async (req,res) => {
+    const bookId = req.params._id;
     const book = await Book.findById(bookId);
 
     if (book){
