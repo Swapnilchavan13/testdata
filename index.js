@@ -53,7 +53,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
     }
-
     const imageModel = new Image({
       filename: req.file.originalname,
       fileId: req.file.id,
