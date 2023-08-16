@@ -7,7 +7,7 @@ const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const Image = require('./models/Image'); // Import the Image schema
 
-const PORT = process.env.PORT;
+const PORT = 3000;
 
 mongoose.set('strictQuery', false);
 
