@@ -1,130 +1,73 @@
 const express = require('express');
+require('dotenv').config();
 const mongoose = require('mongoose');
+const cors = require('cors');
 const multer = require('multer');
-const path = require('path');
-const cors = require("cors")
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const Image = require('./models/Image'); // Import the Image schema
 
-const Image = require('./models/Image');
+const PORT = process.env.PORT;
 
-const dotenv = require('dotenv');
+mongoose.set('strictQuery', false);
 
-dotenv.config();
 const app = express();
-const port = 3000;
 
-
-// MongoDB setup
-mongoose.connect(process.env.DB_URI, {
+// Set up mongoose connection
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-app.use(cors());
+const conn = mongoose.connection;
 
-// Image storage setup
-const storage = multer.diskStorage({
-  destination: './public/images',
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
+// Initialize GridFS
+let gfs;
+conn.once('open', () => {
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads'); // This collection name must match the one used in the GridFSStorage configuration
+});
+
+// Set up storage for multer using GridFS
+const storage = new GridFsStorage({
+  url: process.env.MONGO_URL,
+  options: { useNewUrlParser: true, useUnifiedTopology: true },
+  file: (req, file) => {
+    return {
+      filename: file.originalname,
+      bucketName: 'uploads', // Collection name in MongoDB
+    };
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-// Express middleware
-app.use(express.json());
-app.use(express.static('public'));
+app.use(cors());
 
-// API route for image upload
-
-app.get('/', (req, res) => {
-    res.send({Title: "HomePage"})
-  })
+app.get('/' ,async (req, res) =>{
+res.send({title:"Backend working"})
+})
 
 app.post('/upload', upload.single('image'), async (req, res) => {
-  const imagePath = `/images/${req.file.filename}`;
   try {
-    const newImage = new Image({ imagePath });
-    await newImage.save();
-    res.json({ message: 'Image uploaded successfully', imagePath });
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    const imageModel = new Image({
+      filename: req.file.originalname,
+      fileId: req.file.id,
+    });
+
+    await imageModel.save();
+
+    res.json({ message: 'Image uploaded successfully', fileId: req.file.id });
   } catch (error) {
     console.error('Error uploading image:', error);
-    res.status(500).json({ message: 'Image upload failed' });
+    res.status(500).json({ error: 'Error uploading image' });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-
-
-
-// require('dotenv').config();
-// const express = require("express")
-// const mongoose = require("mongoose")
-// const cors = require("cors")
-// const Book = require('./models/books')
-
-// const app = express();
-// const PORT = process.env.PORT || 3000;
-
-// mongoose.set('strictQuery', false);
-
-// const connectDB = async () => {
-//   try {
-//     const conn = await mongoose.connect(process.env.MONGO_URL);
-//     console.log((`MongoDb Connected : ${conn.connection.host}`))
-//   } catch (error) {
-//     process.exit(1)
-//   }
-// }
-
-// // Enable CORS for all routes
-// app.use(cors());
-
-// app.get('/', (req, res) => {
-//   res.send({Title: "HomePage"})
-// })
-
-// app.get('/add-note', async (req, res) => {
-//   try {
-//     await Book.insertMany([
-    
-//     ])
-    
-//     console.log("err", + error)
-//   }
-// })
-
-// // Get single book by id
-// app.get('/books/:_id', async (req, res) => {
-//   try {
-//   } catch (error) {
-//     const book = await Book.findById(req.params._id);
-    
-//     if (book) {
-//       res.json(book)
-//     } else {
-//       res.send("Book not found")
-//     }
-//   } catch (error) {
-//     res.send(error.message)
-//   }
-// })
-
-// app.get('/books', async (req, res) => {
-//   const books = await Book.find();
-
-//   if (books) {
-//     res.json(books)
-//   } else {
-//     res.send("Something went wrong")
-//   }
-// })
-// connectDB().then(() => {
-//   app.listen(PORT, () => {
-//     console.log(`Listening on port ${PORT}`)
-//   })
-// })
-
