@@ -12,6 +12,7 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
+
 // MongoDB setup
 mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
@@ -35,7 +36,12 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // API route for image upload
-app.post('/api/upload', upload.single('image'), async (req, res) => {
+
+app.get('/', (req, res) => {
+    res.send({Title: "HomePage"})
+  })
+
+app.post('/upload', upload.single('image'), async (req, res) => {
   const imagePath = `/images/${req.file.filename}`;
   try {
     const newImage = new Image({ imagePath });
@@ -87,7 +93,6 @@ app.listen(port, () => {
     
 //     ])
     
-//   } catch (error) {
 //     console.log("err", + error)
 //   }
 // })
@@ -95,6 +100,7 @@ app.listen(port, () => {
 // // Get single book by id
 // app.get('/books/:_id', async (req, res) => {
 //   try {
+//   } catch (error) {
 //     const book = await Book.findById(req.params._id);
     
 //     if (book) {
@@ -116,9 +122,9 @@ app.listen(port, () => {
 //     res.send("Something went wrong")
 //   }
 // })
-
 // connectDB().then(() => {
 //   app.listen(PORT, () => {
 //     console.log(`Listening on port ${PORT}`)
 //   })
 // })
+
